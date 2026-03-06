@@ -309,7 +309,7 @@
             </div>
 
             <div class="p-10 lg:p-14 lg:col-span-3 bg-white text-black">
-                <form class="space-y-8" action="https://formspree.io/f/mreygpje" method="POST">
+                <form id="contactForm" class="space-y-8">
                     <input type="hidden" name="_gotcha" style="display:none">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div>
@@ -369,6 +369,30 @@
     </footer>
 
     <script>
+        const scriptURL = "https://script.google.com/macros/s/AKfycby12NGGhhQCFv28QVGZU-1mb-9mbwfQrQPCA6TWJLabqbQIrPGcsPd-THXqVse4HMs5/exec";
+
+        document.getElementById("contactForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+
+            const data = {
+                name: document.querySelector("[name='name']").value,
+                phone: document.querySelector("[name='phone']").value,
+                email: document.querySelector("[name='email']").value,
+                service: document.querySelector("[name='service']").value,
+                details: document.querySelector("[name='details']").value
+            };
+
+            fetch(scriptURL, {
+                method: "POST",
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                alert("Message sent successfully");
+                document.getElementById("contactForm").reset();
+            })
+            .catch(error => alert("Error sending message"));
+        });
+
         // Mobile Menu Toggle
         function toggleMobileMenu() {
             const menu = document.getElementById('mobileMenu');
