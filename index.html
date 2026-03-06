@@ -309,7 +309,8 @@
             </div>
 
             <div class="p-10 lg:p-14 lg:col-span-3 bg-white text-black">
-                <form class="space-y-8" onsubmit="submitForm(event)">
+                <form class="space-y-8" action="https://formspree.io/f/mreygpje" method="POST">
+                    <input type="hidden" name="_gotcha" style="display:none">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div>
                             <label class="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">Your Name</label>
@@ -345,7 +346,6 @@
                     <button type="submit" class="bg-black text-white px-8 py-4 rounded-lg font-bold hover:bg-blue-600 transition w-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 transform flex justify-center items-center gap-2">
                         SEND MESSAGE <i class="fa-solid fa-paper-plane text-sm"></i>
                     </button>
-                    <p id="formStatus" class="text-sm font-medium hidden"></p>
                 </form>
             </div>
 
@@ -369,55 +369,6 @@
     </footer>
 
     <script>
-        // Submit form to backend API and store lead in database
-        async function submitForm(event) {
-            event.preventDefault();
-            const form = event.target;
-            const formData = new FormData(form);
-            const statusEl = document.getElementById('formStatus');
-            const submitBtn = form.querySelector('button[type="submit"]');
-            const submitText = submitBtn.innerHTML;
-            const payload = {
-                name: (formData.get('name') || '').toString().trim(),
-                phone: (formData.get('phone') || '').toString().trim(),
-                email: (formData.get('email') || '').toString().trim(),
-                service: (formData.get('service') || '').toString().trim(),
-                details: (formData.get('details') || '').toString().trim(),
-                client_time: new Date().toISOString(),
-                client_timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || ''
-            };
-
-            statusEl.classList.add('hidden');
-            submitBtn.disabled = true;
-            submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
-            submitBtn.innerHTML = 'SENDING...';
-
-            try {
-                const response = await fetch('/api/contact', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                const result = await response.json();
-                if (!response.ok || !result.ok) {
-                    throw new Error(result.error || 'Failed to submit message.');
-                }
-
-                form.reset();
-                statusEl.textContent = 'Message sent successfully. We will contact you shortly.';
-                statusEl.className = 'text-sm font-medium text-green-600';
-            } catch (error) {
-                statusEl.textContent = 'Could not send message right now. Please try again.';
-                statusEl.className = 'text-sm font-medium text-red-600';
-            } finally {
-                statusEl.classList.remove('hidden');
-                submitBtn.disabled = false;
-                submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                submitBtn.innerHTML = submitText;
-            }
-        }
-
         // Mobile Menu Toggle
         function toggleMobileMenu() {
             const menu = document.getElementById('mobileMenu');
