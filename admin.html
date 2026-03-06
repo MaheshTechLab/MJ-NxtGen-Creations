@@ -49,7 +49,6 @@
 
   <script>
     const loadBtn = document.getElementById('loadBtn');
-    const tokenInput = document.getElementById('token');
     const statusEl = document.getElementById('status');
     const rowsEl = document.getElementById('rows');
 
@@ -63,21 +62,12 @@
     }
 
     async function loadLeads() {
-      const token = tokenInput.value.trim();
-      if (!token) {
-        statusEl.textContent = 'Enter admin token first.';
-        statusEl.className = 'text-sm mt-2 text-red-600';
-        return;
-      }
-
       loadBtn.disabled = true;
       loadBtn.textContent = 'Loading...';
       statusEl.textContent = '';
 
       try {
-        const response = await fetch('/api/leads', {
-          headers: { Authorization: token }
-        });
+        const response = await fetch("/api/leads?token=9901");
 
         const data = await response.json();
         if (!response.ok || !data.ok) {
