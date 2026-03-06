@@ -346,6 +346,7 @@
                     <button type="submit" class="bg-black text-white px-8 py-4 rounded-lg font-bold hover:bg-blue-600 transition w-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 transform flex justify-center items-center gap-2">
                         SEND MESSAGE <i class="fa-solid fa-paper-plane text-sm"></i>
                     </button>
+                    <p id="formStatus" class="text-sm font-medium hidden"></p>
                 </form>
             </div>
 
@@ -369,28 +370,52 @@
     </footer>
 
     <script>
-        const scriptURL = "https://script.google.com/macros/s/AKfycby12NGGhhQCFv28QVGZU-1mb-9mbwfQrQPCA6TWJLabqbQIrPGcsPd-THXqVse4HMs5/exec";
-
-        document.getElementById("contactForm").addEventListener("submit", function(e) {
+        const contactForm = document.getElementById("contactForm");
+        contactForm.addEventListener("submit", async function (e) {
             e.preventDefault();
 
+            const formStatus = document.getElementById("formStatus");
+            const submitBtn = contactForm.querySelector("button[type='submit']");
+            const originalBtnHtml = submitBtn.innerHTML;
             const data = {
                 name: document.querySelector("[name='name']").value,
                 phone: document.querySelector("[name='phone']").value,
                 email: document.querySelector("[name='email']").value,
                 service: document.querySelector("[name='service']").value,
-                details: document.querySelector("[name='details']").value
+                details: document.querySelector("[name='details']").value,
+                _gotcha: document.querySelector("[name='_gotcha']").value,
+                client_time: new Date().toISOString(),
+                client_timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || ""
             };
 
-            fetch(scriptURL, {
-                method: "POST",
-                body: JSON.stringify(data)
-            })
-            .then(response => {
-                alert("Message sent successfully");
-                document.getElementById("contactForm").reset();
-            })
-            .catch(error => alert("Error sending message"));
+            formStatus.className = "text-sm font-medium hidden";
+            submitBtn.disabled = true;
+            submitBtn.classList.add("opacity-70", "cursor-not-allowed");
+            submitBtn.innerHTML = "SENDING...";
+
+            try {
+                const response = await fetch("/api/contact", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                if (!response.ok || !result.ok) {
+                    throw new Error(result.error || "Failed to submit message.");
+                }
+
+                contactForm.reset();
+                formStatus.textContent = "Message sent successfully.";
+                formStatus.className = "text-sm font-medium text-green-600";
+            } catch (error) {
+                formStatus.textContent = "Unable to send now. Please try again.";
+                formStatus.className = "text-sm font-medium text-red-600";
+            } finally {
+                formStatus.classList.remove("hidden");
+                submitBtn.disabled = false;
+                submitBtn.classList.remove("opacity-70", "cursor-not-allowed");
+                submitBtn.innerHTML = originalBtnHtml;
+            }
         });
 
         // Mobile Menu Toggle

@@ -76,7 +76,7 @@
 
       try {
         const response = await fetch('/api/leads', {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: token }
         });
 
         const data = await response.json();
